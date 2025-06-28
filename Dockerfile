@@ -48,6 +48,12 @@ COPY --from=builder /usr/local/bin /usr/local/bin
 # Copy application code
 COPY . .
 
+# Entrypoint runs migrations then launches the given CMD
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
+ENTRYPOINT ["docker-entrypoint.sh"]
+
 # Default command – production server via Gunicorn+Uvicorn worker
 CMD gunicorn app.main:app \
     --worker-class uvicorn.workers.UvicornWorker \

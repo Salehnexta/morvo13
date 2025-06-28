@@ -3,6 +3,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
+from prometheus_client import make_asgi_app
 
 from app.api.v1.router import api_router
 from app.core.cache import init_cache
@@ -47,6 +48,9 @@ def create_app() -> FastAPI:
 
     # Include the main API router
     app.include_router(api_router, prefix=settings.API_V1_STR)
+
+    # Expose Prometheus metrics at /metrics
+    app.mount("/metrics", make_asgi_app())
 
     @app.get("/", tags=["Root"])
     async def read_root() -> dict[str, str]:

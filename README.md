@@ -15,6 +15,7 @@ docker compose up --build
 ```
 
 The API will be available at `http://localhost:8000` and docs at `http://localhost:8000/docs`.
+Prometheus metrics exposed at `http://localhost:8000/metrics`.
 
 ## Continuous Integration
 
