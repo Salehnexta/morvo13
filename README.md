@@ -46,6 +46,19 @@ See [`env.example`](env.example) for the full list; at minimum you'll need:
 * `SECRET_KEY`
 * `SENTRY_DSN` (optional)
 
+## Kubernetes
+
+Kubernetes manifests in `k8s/` provide:
+* Deployment (with probes, Prometheus annotations)
+* Service (ClusterIP)
+* Ingress (TLS via cert-manager)
+
+Apply with:
+```bash
+kubectl apply -f k8s/
+```
+Create a `morvo-secrets` Secret beforehand with the same environment keys.
+
 ## License
 
 MIT © Morvo
