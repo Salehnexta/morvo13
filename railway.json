@@ -1,0 +1,23 @@
+{
+  "$schema": "https://railway.app/railway.schema.json",
+  "plugins": [
+    "postgres",
+    "redis"
+  ],
+  "services": {
+    "web": {
+      "dockerfilePath": "Dockerfile",
+      "startCommand": null,
+      "envVars": {
+        "PORT": "8000"
+      }
+    },
+    "worker": {
+      "dockerfilePath": "Dockerfile",
+      "startCommand": "docker-entrypoint.sh celery -A app.core.celery_app:celery_app worker --loglevel=info",
+      "envVars": {
+        "PORT": "8000"
+      }
+    }
+  }
+} 
