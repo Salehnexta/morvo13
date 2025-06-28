@@ -54,13 +54,20 @@ jobs:
 
       - name: Run tests with coverage
         run: |
-          poetry run pytest -q --cov=app --cov-report=xml
+          poetry run pytest -q --cov=app --cov-report=xml --cov-fail-under=80
 
       - name: Upload coverage
         uses: actions/upload-artifact@v4
         with:
           name: coverage-xml
           path: coverage.xml
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: coverage.xml
+          fail_ci_if_error: false
 
   docker-build:
     needs: build-test

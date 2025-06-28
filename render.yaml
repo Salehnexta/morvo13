@@ -1,0 +1,63 @@
+services:
+  - type: web
+    name: morvo-api
+    env: docker
+    plan: starter
+    autoDeploy: true
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: SECRET_KEY
+        sync: false
+      - key: SENTRY_DSN
+        sync: false
+    healthCheckPath: /v1/health
+
+  - type: worker
+    name: morvo-celery
+    env: docker
+    plan: starter
+    autoDeploy: true
+    envVars:
+      - key: DATABASE_URL
+        fromService:
+          name: morvo-api
+          type: envVar
+          envVarKey: DATABASE_URL
+      - key: REDIS_URL
+        fromService:
+          name: morvo-api
+          type: envVar
+          envVarKey: REDIS_URL
+      - key: OPENAI_API_KEY
+        fromService:
+          name: morvo-api
+          type: envVar
+          envVarKey: OPENAI_API_KEY
+      - key: SECRET_KEY
+        fromService:
+          name: morvo-api
+          type: envVar
+          envVarKey: SECRET_KEY
+      - key: SENTRY_DSN
+        fromService:
+          name: morvo-api
+          type: envVar
+          envVarKey: SENTRY_DSN
+    dockerCommand: celery -A app.core.celery_app:celery_app worker --loglevel=info
+
+  - type: pserv
+    name: redis
+    env: redis
+    plan: starter
+
+  - type: pserv
+    name: postgres
+    env: postgres
+    plan: starter
+    properties:
+      databaseName: morvo 
