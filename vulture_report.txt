@@ -1,0 +1,4 @@
+app/agents/specialists/data_synthesis_agent.py:240: unused variable 'synthesis_result' (100% confidence, 1 line)
+app/agents/specialists/master_agent.py:104: unused variable 'plan' (100% confidence, 1 line)
+app/agents/specialists/master_agent.py:115: unused variable 'original_request' (100% confidence, 1 line)
+app/core/config/settings.py:54: unused variable 'cls' (100% confidence, 1 line)

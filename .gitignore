@@ -1,0 +1,21 @@
+# Environment variables
+.env
+.env.*
+
+# Byte-compiled / optimized files
+__pycache__/
+*.py[cod]
+*.$py.class
+
+# Local databases and artifacts
+*.db
+
+# IDE / editor folders
+.idea/
+.vscode/
+
+# Misc generated files
+*.log
+coverage.xml
+/dist/
+/build/

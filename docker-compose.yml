@@ -1,0 +1,50 @@
+1:1
+version: "3.9"
+
+services:
+  app:
+    build: .
+    container_name: morvo-app
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      - db
+      - redis
+    command: >-
+      gunicorn app.main:app \
+        --worker-class uvicorn.workers.UvicornWorker \
+        --workers 4 \
+        --bind 0.0.0.0:8000
+
+  celery:
+    build: .
+    container_name: morvo-celery
+    env_file:
+      - .env
+    command: celery -A app.core.celery_app:celery_app worker --loglevel=info
+    depends_on:
+      - redis
+      - db
+
+  redis:
+    image: redis:7-alpine
+    container_name: morvo-redis
+    ports:
+      - "6379:6379"
+
+  db:
+    image: postgres:16-alpine
+    container_name: morvo-postgres
+    environment:
+      POSTGRES_USER: morvo
+      POSTGRES_PASSWORD: morvo
+      POSTGRES_DB: morvo
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+volumes:
+  pgdata: 

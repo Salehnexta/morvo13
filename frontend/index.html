@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Morvo13 - AI Marketing Assistant</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .logo {
+            font-size: 2.5em;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .status-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-left: 4px solid #28a745;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #28a745;
+            margin-right: 10px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .agents-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .agent-card {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .agent-card:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .agent-icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .agent-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .agent-status {
+            color: #28a745;
+            font-size: 0.9em;
+        }
+
+        .chat-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .chat-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 15px;
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .response-area {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            min-height: 100px;
+            white-space: pre-wrap;
+            display: none;
+        }
+
+        .loading {
+            text-align: center;
+            color: #667eea;
+            font-style: italic;
+        }
+
+        .error {
+            color: #dc3545;
+            background: #f8d7da;
+            border-color: #f5c6cb;
+        }
+
+        .success {
+            color: #155724;
+            background: #d4edda;
+            border-color: #c3e6cb;
+        }
+
+        .endpoints {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .endpoint-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .endpoint-btn:hover {
+            background: #5a6268;
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">Morvo13</div>
+            <div class="subtitle">AI Marketing Assistant Platform</div>
+        </div>
+
+        <div class="status-card">
+            <div class="status-indicator">
+                <div class="status-dot"></div>
+                <strong>System Status: <span id="system-status">Checking...</span></strong>
+            </div>
+            <div id="system-info">Loading system information...</div>
+        </div>
+
+        <div class="agents-grid" id="agents-grid">
+            <!-- Agents will be loaded here -->
+        </div>
+
+        <div class="chat-section">
+            <h3 style="margin-bottom: 15px; color: #333;">💬 Chat with AI Assistant</h3>
+            <textarea 
+                id="chat-input" 
+                class="chat-input" 
+                placeholder="Ask me anything about marketing, content strategy, or business growth..."
+            ></textarea>
+            <button id="send-btn" class="btn" onclick="sendMessage()">
+                Send Message
+            </button>
+            <div id="response-area" class="response-area"></div>
+        </div>
+
+        <div style="text-align: center; margin-top: 20px;">
+            <h4 style="color: #333; margin-bottom: 15px;">🔗 Quick Actions</h4>
+            <div class="endpoints">
+                <button class="endpoint-btn" onclick="checkHealth()">Health Check</button>
+                <button class="endpoint-btn" onclick="viewDocs()">API Docs</button>
+                <button class="endpoint-btn" onclick="checkProtocols()">Protocols</button>
+                <button class="endpoint-btn" onclick="viewNetwork()">A2A Network</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8000';
+        
+        // Load system status on page load
+        window.addEventListener('load', function() {
+            loadSystemStatus();
+        });
+
+        async function loadSystemStatus() {
+            try {
+                const response = await fetch(`${API_BASE}/v1/health`);
+                const data = await response.json();
+                
+                document.getElementById('system-status').textContent = data.status || 'Unknown';
+                document.getElementById('system-info').innerHTML = `
+                    <strong>Version:</strong> ${data.version || 'N/A'}<br>
+                    <strong>Active Agents:</strong> ${data.agents ? data.agents.length : 0}<br>
+                    <strong>WebSocket Connections:</strong> ${data.websocket_connections || 0}<br>
+                    <strong>Protocols Enhanced:</strong> ${data.protocols_enhanced ? 'Yes' : 'No'}
+                `;
+                
+                // Load agents
+                if (data.agents) {
+                    loadAgents(data.agents);
+                }
+            } catch (error) {
+                document.getElementById('system-status').textContent = 'Offline';
+                document.getElementById('system-info').innerHTML = `
+                    <span style="color: #dc3545;">❌ Cannot connect to backend server</span><br>
+                    <small>Make sure the FastAPI server is running on port 8000</small>
+                `;
+            }
+        }
+
+        function loadAgents(agents) {
+            const agentsGrid = document.getElementById('agents-grid');
+            const agentIcons = ['🧠', '👁️', '⚡', '✍️', '📊'];
+            
+            agentsGrid.innerHTML = agents.map((agent, index) => `
+                <div class="agent-card">
+                    <div class="agent-icon">${agentIcons[index] || '🤖'}</div>
+                    <div class="agent-name">${agent.name}</div>
+                    <div class="agent-status">● ${agent.status}</div>
+                </div>
+            `).join('');
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const sendBtn = document.getElementById('send-btn');
+            const responseArea = document.getElementById('response-area');
+            
+            const message = input.value.trim();
+            if (!message) return;
+            
+            // Show loading state
+            sendBtn.disabled = true;
+            sendBtn.textContent = 'Sending...';
+            responseArea.style.display = 'block';
+            responseArea.className = 'response-area loading';
+            responseArea.textContent = '🤔 AI is thinking...';
+            
+            try {
+                const response = await fetch(`${API_BASE}/v1/chat/message`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        client_id: 'demo-user-session',
+                        content: message,
+                        context: {}
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    responseArea.className = 'response-area success';
+                    responseArea.textContent = data.content || 'No response received';
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                responseArea.className = 'response-area error';
+                responseArea.textContent = `❌ Error: ${error.message}\n\nMake sure the chat endpoint is implemented in your FastAPI backend.`;
+            }
+            
+            // Reset button
+            sendBtn.disabled = false;
+            sendBtn.textContent = 'Send Message';
+        }
+
+        async function checkHealth() {
+            window.open(`${API_BASE}/v1/health`, '_blank');
+        }
+
+        function viewDocs() {
+            window.open(`${API_BASE}/docs`, '_blank');
+        }
+
+        async function checkProtocols() {
+            window.open(`${API_BASE}/protocols/status`, '_blank');
+        }
+
+        async function viewNetwork() {
+            window.open(`${API_BASE}/a2a/network`, '_blank');
+        }
+
+        // Allow Enter key to send message
+        document.getElementById('chat-input').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html> 
