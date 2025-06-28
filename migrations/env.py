@@ -29,6 +29,28 @@ target_metadata = Base.metadata
 # ... etc.
 
 
+def get_database_url():
+    """Get database URL from environment or config and convert async URLs to sync for migrations."""
+    # First try environment variable
+    database_url = os.getenv("DATABASE_URL")
+    if database_url:
+        # Convert async URLs to sync for migrations
+        if "+asyncpg" in database_url:
+            database_url = database_url.replace("+asyncpg", "")
+        if "+aiosqlite" in database_url:
+            database_url = database_url.replace("+aiosqlite", "")
+        return database_url
+    
+    # Fall back to alembic.ini
+    url = config.get_main_option("sqlalchemy.url")
+    # Convert async URLs to sync for migrations
+    if "+asyncpg" in url:
+        url = url.replace("+asyncpg", "")
+    if "+aiosqlite" in url:
+        url = url.replace("+aiosqlite", "")
+    return url
+
+
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode.
 
@@ -41,7 +63,7 @@ def run_migrations_offline() -> None:
     script output.
 
     """
-    url = config.get_main_option("sqlalchemy.url")
+    url = get_database_url()
     context.configure(
         url=url,
         target_metadata=target_metadata,
@@ -60,15 +82,18 @@ def run_migrations_online() -> None:
     and associate a connection with the context.
 
     """
+    # Get database URL from environment or config
+    database_url = get_database_url()
+    
+    # Create engine configuration
+    configuration = config.get_section(config.config_ini_section, {})
+    configuration["sqlalchemy.url"] = database_url
+    
     connectable = engine_from_config(
-        config.get_section(config.config_ini_section, {}),
+        configuration,
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
     )
-
-    # Special handling for async engines
-    if connectable.url.drivername == "postgresql+asyncpg":
-        connectable = create_engine(str(connectable.url).replace("+asyncpg", ""))
 
     with connectable.connect() as connection:
         context.configure(connection=connection, target_metadata=target_metadata)

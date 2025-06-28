@@ -1,59 +1,43 @@
-# Makefile for the Morvo AI Marketing Platform
+# Morvo Makefile
 
-.PHONY: help test lint format deadcode requirements fix-imports fix-all check-errors
-
-# Define the default shell
-SHELL := /bin/bash
-
-# Get the Python interpreter from the virtual environment
-PYTHON := poetry run python
+.PHONY: help dev lint tests coverage docker-up docker-down gradio
 
 help:
-	@echo "Commands:"
-	@echo "  make test          - Run all tests with pytest"
-	@echo "  make lint          - Run linters (ruff, mypy)"
-	@echo "  make format        - Format code with black and isort"
-	@echo "  make deadcode      - Find dead code with vulture"
-	@echo "  make requirements  - Export dependencies to requirements.txt"
-	@echo "  make fix-imports   - Remove unused imports and variables"
-	@echo "  make fix-all       - Auto-fix all possible issues"
-	@echo "  make check-errors  - Check for runtime errors with error tracking"
+	@echo "Usage: make <target>"
+	@echo "Available targets:"
+	@echo "  dev           Start FastAPI + Celery in uvicorn reload mode"
+	@echo "  lint          Run ruff, black --check, isort --check, mypy"
+	@echo "  tests         Run pytest with coverage"
+	@echo "  coverage      Generate HTML coverage report"
+	@echo "  docker-up     docker compose up -d --build"
+	@echo "  docker-down   docker compose down -v"
+	@echo "  gradio        Launch temporary Gradio UI"
 
-test:
-	@echo "Running tests..."
-	$(PYTHON) -m pytest
+install:
+	poetry install --no-interaction --with dev,prod
 
 lint:
-	@echo "Running linters..."
-	poetry run ruff check app
-	poetry run mypy app
+	poetry run ruff check . && \
+	poetry run black --check . && \
+	poetry run isort --check . && \
+	poetry run mypy .
 
-format:
-	@echo "Formatting code..."
-	poetry run black app
-	poetry run isort app
+tests:
+	poetry run pytest -q --cov=app --cov-report=term-missing --cov-fail-under=80
 
-deadcode:
-	@echo "Finding dead code with Vulture..."
-	poetry run vulture app --min-confidence 80
+coverage:
+	poetry run pytest --cov=app --cov-report=html && open htmlcov/index.html
 
-requirements:
-	@echo "Exporting dependencies to requirements.txt..."
-	poetry export -f requirements.txt --output requirements.txt --without-hashes
+dev:
+	poetry run uvicorn app.main:app --reload
 
-fix-imports:
-	@echo "Removing unused imports and variables..."
-	poetry run autoflake --remove-all-unused-imports --remove-unused-variables --in-place --recursive app
+docker-up:
+	docker compose up -d --build
 
-fix-all:
-	@echo "Auto-fixing all possible issues..."
-	poetry run autoflake --remove-all-unused-imports --remove-unused-variables --in-place --recursive app
-	poetry run black app
-	poetry run isort app
-	poetry run ruff check app --fix
-	@echo "✅ All auto-fixes applied!"
+docker-down:
+	docker compose down -v
 
-check-errors:
-	@echo "Checking for potential runtime errors..."
-	$(PYTHON) -c "from app.core.error_tracking_example import *; print('✅ Error tracking examples work!')"
-	@echo "💡 Add SENTRY_DSN to your .env file to enable error tracking"
+# ---- Front-end helpers ----
+# Launch temporary Gradio UI (frontend/gradio_ui.py)
+gradio:
+	poetry run python -m frontend.gradio_ui

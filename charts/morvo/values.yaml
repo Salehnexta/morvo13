@@ -1,0 +1,27 @@
+replicaCount: 1
+
+image:
+  repository: ghcr.io/your-org/morvo
+  tag: latest  # overridden by CI
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 80
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 250m
+    memory: 256Mi
+
+env:
+  APP_ENV: "production"
+  PORT: "8000"
+
+ingress:
+  enabled: true
+  className: "nginx"
+  host: "morvo.example.com" 

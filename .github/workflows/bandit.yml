@@ -1,0 +1,26 @@
+name: Security Lint (Bandit)
+
+on:
+  pull_request:
+    paths:
+      - "app/**.py"
+      - ".github/workflows/bandit.yml"
+
+jobs:
+  bandit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Python & Bandit
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install bandit==1.8.5
+      - name: Run Bandit scan
+        run: |
+          bandit -r app -ll -o bandit-report.html -f html
+      - name: Upload Bandit report
+        uses: actions/upload-artifact@v4
+        with:
+          name: bandit-report
+          path: bandit-report.html 

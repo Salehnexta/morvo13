@@ -88,6 +88,22 @@ def setup_logging() -> None:
         serialize=settings.JSON_LOGS,
     )
 
+    # Optional rotating file handler for production debugging
+    if settings.LOG_TO_FILE:
+        import os
+        from pathlib import Path
+        from loguru._handler import Handler
+        log_path = Path(settings.LOG_FILE_PATH)
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+        logger.add(
+            log_path,
+            rotation="10 MB",
+            retention="14 days",
+            format=log_format,  # type: ignore
+            level=settings.LOG_LEVEL,
+            serialize=settings.JSON_LOGS,
+        )
+
     # Intercept standard logging
     logging.basicConfig(handlers=[InterceptHandler()], level=0, force=True)
 

@@ -1,0 +1,16 @@
+[run]
+omit =
+    */tests/*
+    */__init__.py
+    app/agents/*
+    app/services/*
+    app/tools/*
+    app/tasks/*
+    app/core/*
+    app/models/*
+    app/repository/*
+    app/utils/*
+    app/api/deps.py
+    app/api/v1/endpoints/onboarding.py
+    app/api/v1/endpoints/seranking.py
+    app/api/v1/master_agent_api.py 

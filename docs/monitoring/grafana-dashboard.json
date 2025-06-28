@@ -1,0 +1,8 @@
+{
+  "__comment": "Placeholder Grafana dashboard – replace with exported JSON once finalized",
+  "dashboard": {
+    "uid": "morvo-overview",
+    "title": "Morvo Overview",
+    "panels": []
+  }
+} 

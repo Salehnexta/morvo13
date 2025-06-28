@@ -1,0 +1,21 @@
+graph TD
+  subgraph Clients
+    Browser
+    Mobile
+  end
+
+  Browser -->|HTTPS| API[FastAPI Backend]
+  Mobile -->|HTTPS| API
+
+  API -->|PostgreSQL (asyncpg)| DB[(Supabase Postgres)]
+  API -->|Redis| Cache[Redis / Rate Limiter]
+  API -->|Celery| Broker[Redis Broker]
+  Broker --> Worker[Celery Worker]
+  Worker -->|PostgreSQL| DB
+  subgraph Observability
+    Prometheus
+    Grafana
+  end
+  API -->|/metrics scrape| Prometheus
+  Worker -->|task metrics| Prometheus
+  Prometheus --> Grafana 
