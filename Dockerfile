@@ -59,4 +59,7 @@ CMD gunicorn app.main:app \
     --worker-class uvicorn.workers.UvicornWorker \
     --workers 4 \
     --bind 0.0.0.0:"${PORT}" \
-    --log-level info 
+    --log-level info
+
+# Docker healthcheck
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s CMD curl -f http://localhost:${PORT}/v1/health || exit 1 

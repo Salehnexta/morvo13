@@ -4,6 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from prometheus_client import make_asgi_app
+import warnings
 
 from app.api.v1.router import api_router
 from app.core.cache import init_cache
@@ -15,6 +16,12 @@ from app.core.rate_limiter import setup_rate_limiting
 # Application Factory with Lifespan
 # -----------------------------
 
+warnings.filterwarnings(
+    "ignore",
+    message="Mixing V1 models and V2 models",
+    category=UserWarning,
+    module="pydantic._internal._generate_schema",
+)
 
 def create_app() -> FastAPI:
     """Application factory that sets up the FastAPI app with lifespan events."""

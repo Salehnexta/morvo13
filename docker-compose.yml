@@ -16,6 +16,12 @@ services:
         --worker-class uvicorn.workers.UvicornWorker \
         --workers 4 \
         --bind 0.0.0.0:8000
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/v1/health"]
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
 
   celery:
     build: .
