@@ -28,7 +28,7 @@ jobs:
           push: false
 
       - name: Run Trivy vulnerability scan
-        uses: aquasecurity/trivy-action@0.20.0
+        uses: aquasecurity/trivy-action@0.31.0
         with:
           image-ref: morvo:test
           format: table
